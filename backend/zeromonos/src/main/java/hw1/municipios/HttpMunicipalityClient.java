@@ -13,7 +13,6 @@ public class HttpMunicipalityClient implements MunicipalityClient {
 
     private final WebClient geoApi;
 
-    // IMPORTANTE: guardar a referência do bean
     public HttpMunicipalityClient(WebClient geoApiWebClient) {
         this.geoApi = geoApiWebClient;
     }
@@ -21,57 +20,48 @@ public class HttpMunicipalityClient implements MunicipalityClient {
     @Override
     public List<Municipality> listAll() {
         try {
-            // JSON público: https://json.geoapi.pt/municipios?json=1
-            List<Map<String,Object>> rows = geoApi.get()
-                    .uri("/municipios?json=1")
-                    .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<List<Map<String,Object>>>() {})
-                    .block();
+            List<String> names = geoApi.get()
+                .uri("/municipios?json=1")
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
+                .block();
 
-            if (rows == null) return List.of();
+            if (names == null || names.isEmpty()) {
+                throw new IllegalStateException("GeoAPI respondeu vazio");
+            }
 
-            return rows.stream()
-                    .map(this::asMunicipality)
-                    .filter(Objects::nonNull)
-                    .sorted(Comparator.comparing(Municipality::name))
-                    .collect(Collectors.toList());
+            return names.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(name -> new Municipality(slugify(name), name))
+                .sorted(Comparator.comparing(Municipality::name))
+                .toList();
 
         } catch (Exception ex) {
-            // fallback resiliente para não quebrares a demo se a Geo API falhar
-            return List.of(
-                    new Municipality("lisboa","Lisboa"),
-                    new Municipality("porto","Porto"),
-                    new Municipality("coimbra","Coimbra"),
-                    new Municipality("braga","Braga")
-            );
+            System.err.println("[WARN] Falha ao obter municípios da GeoAPI: " + ex.getMessage());
+            throw new IllegalStateException("Erro ao obter municípios da GeoAPI", ex);
         }
     }
 
-    private Municipality asMunicipality(Map<String,Object> m) {
-        String name = firstNonBlank(
-                getStr(m,"concelho"),
-                getStr(m,"municipio"),
-                getStr(m,"nome"),
-                getStr(m,"name")
-        );
+
+    private Municipality mapToMunicipality(Map<String, Object> raw) {
+        Object concelho = raw.get("concelho");
+        Object municipio = raw.get("municipio");
+        Object nome = raw.get("nome");
+        String name = concelho != null ? concelho.toString()
+                : municipio != null ? municipio.toString()
+                : nome != null ? nome.toString()
+                : null;
+
         if (name == null || name.isBlank()) return null;
-        return new Municipality(toCode(name), name);
+        return new Municipality(slugify(name), name);
     }
 
-    private String getStr(Map<String,Object> m, String k) {
-        Object v = m.get(k);
-        return v == null ? null : String.valueOf(v);
-    }
-
-    private String firstNonBlank(String... vals) {
-        for (var v : vals) if (v != null && !v.isBlank()) return v;
-        return null;
-    }
-
-    private String toCode(String name) {
-        // slug estável: sem acentos, minúsculas, hífens
-        String n = Normalizer.normalize(name, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}+", "");
-        return n.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-");
+    private String slugify(String name) {
+        return Normalizer.normalize(name, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .replaceAll("[^a-zA-Z0-9]+", "-")
+                .toLowerCase(Locale.ROOT);
     }
 }

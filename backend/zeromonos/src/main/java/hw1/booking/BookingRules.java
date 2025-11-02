@@ -19,7 +19,7 @@ public class BookingRules {
 
     public void validate(BookingRequest req) {
         // data tem de ser futura (ou troca a regra conforme precisares)
-        if (req.getDate().isBefore(LocalDate.now())) {
+        if (req.getDate().isBefore(LocalDate.now()) || req.getDate().isEqual(LocalDate.now())) {
             throw new IllegalArgumentException("data inválida (passada)");
         }
         if (!validSlots.contains(req.getTimeSlot())) {
@@ -34,7 +34,9 @@ public class BookingRules {
 
     public void registerExisting(Booking booking) {
         String key = key(booking.getMunicipalityCode(), booking.getDate(), booking.getTimeSlot());
-        existentes.merge(key, 1, Integer::sum);
+        if (booking.getStatus() == BookingStatus.CONFIRMED||booking.getStatus() == BookingStatus.RECEIVED) {
+            existentes.merge(key, 1, Integer::sum);
+        }
     }
 
     private String key(String muni, LocalDate date, String slot) {
