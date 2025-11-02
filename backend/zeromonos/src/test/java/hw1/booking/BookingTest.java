@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.*;
 
-class BookingRulesTest {
+class BookingTest {
 
   @Test
   void naoPermiteDataPassada() {
@@ -102,4 +102,5 @@ class BookingRulesTest {
     assertThatCode(() -> rules.validate(req1)).doesNotThrowAnyException();
     assertThatCode(() -> rules.validate(req2)).doesNotThrowAnyException();
   }
+
 }

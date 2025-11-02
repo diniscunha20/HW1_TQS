@@ -76,20 +76,24 @@ public class BookingService {
         return repo.findByMunicipality(municipalityCode);
     }
 
-    // Atualizar estado
-    public Booking updateStatus(String token, String newStatus) {
-        Booking booking = repo.findByToken(token)
-                .orElseThrow(() -> new BookingNotFoundException("Token não encontrado: " + token));
+    public Booking updateStatus(String token, String statusText) {
+        var b = repo.findByToken(token).orElseThrow(() ->
+            new BookingNotFoundException("Token não encontrado: " + token));
 
-        BookingStatus status;
+        BookingStatus newStatus;
         try {
-            status = BookingStatus.valueOf(newStatus.toUpperCase(Locale.ROOT));
+        newStatus = BookingStatus.valueOf(statusText.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Estado inválido: " + newStatus);
+        throw new IllegalArgumentException("Estado inválido: " + statusText);
         }
 
-        booking.setStatus(status);
-        repo.save(booking);
-        return booking;
+        // (Opcional) regra: não mudar após CANCELLED/COMPLETED
+        if (b.getStatus() == BookingStatus.CANCELLED || b.getStatus() == BookingStatus.COMPLETED) {
+        throw new IllegalStateException("Marcação finalizada/cancelada; não pode transitar.");
+        }
+
+        b.updateStatus(newStatus);
+        repo.save(b);
+        return b;
     }
 }

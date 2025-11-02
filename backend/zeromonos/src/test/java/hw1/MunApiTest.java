@@ -36,4 +36,33 @@ class MunicipalityApiTest {
             .andExpect(jsonPath("$[0].name").value("Lisboa"))
             .andExpect(jsonPath("$[1].code").value("PRT"));
     }
+
+    @Test
+    void GET_municipalities_200_listaVazia() throws Exception {
+        when(client.listAll()).thenReturn(List.of());
+
+        mvc.perform(get("/api/municipalities"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith("application/json"))
+        .andExpect(content().json("[]"));
+    }
+    @Test
+    void GET_municipalities_erroNoClient_422_textPlain() throws Exception {
+        when(client.listAll()).thenThrow(new RuntimeException("GeoAPI down"));
+
+        mvc.perform(get("/api/municipalities"))
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(content().contentTypeCompatibleWith("text/plain"))
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("Erro ao obter municípios")));
+    }
+
+    @Test
+    void GET_municipalities_sucesso_respondeJSON() throws Exception {
+        when(client.listAll()).thenReturn(List.of(new Municipality("LX","Lisboa")));
+        mvc.perform(get("/api/municipalities"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith("application/json"))
+        .andExpect(jsonPath("$[0].code").value("LX"))
+        .andExpect(jsonPath("$[0].name").value("Lisboa"));
+    }
 }
