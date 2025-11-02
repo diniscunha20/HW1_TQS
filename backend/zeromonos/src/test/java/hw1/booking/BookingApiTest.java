@@ -26,7 +26,7 @@ class BookingApiTest {
     mvc.perform(post("/api/bookings")
         .contentType(MediaType.APPLICATION_JSON)
         .content("""
-          {"municipalityCode":"LX","date":"2025-11-10","timeSlot":"AM","description":"Colchão"}
+          {"name":"João","municipalityCode":"LX","date":"2025-11-10","timeSlot":"AM","description":"Colchão"}
         """))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.token").value("abc123token"));
@@ -37,7 +37,7 @@ class BookingApiTest {
     mvc.perform(post("/api/bookings")
         .contentType(MediaType.APPLICATION_JSON)
         .content("""
-          {"municipalityCode":"","date":"2020-01-01","timeSlot":"NOITE","description":""}
+          {"name":"","municipalityCode":"","date":"2020-01-01","timeSlot":"NOITE","description":""}
         """))
       .andExpect(status().isUnprocessableEntity());
   }

@@ -14,14 +14,19 @@ public class InMemoryBookingRepository implements BookingRepository {
     }
 
     @Override
-    public Booking findByToken(String token) {
-        return byToken.get(token.toUpperCase(Locale.ROOT));
+    public Optional<Booking> findByToken(String token) {
+        return Optional.ofNullable(byToken.get(token.toUpperCase(Locale.ROOT)));
     }
 
-    // se precisares de listar por município no Staff:
+    @Override
     public List<Booking> findByMunicipality(String municipalityCode) {
         return byToken.values().stream()
                 .filter(b -> b.getMunicipalityCode().equalsIgnoreCase(municipalityCode))
                 .toList();
+    }
+
+    @Override
+    public List<Booking> findAll() {
+        return new ArrayList<>(byToken.values());
     }
 }

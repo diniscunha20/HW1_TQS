@@ -2,11 +2,10 @@ package hw1.booking;
 
 import hw1.municipios.Municipality;
 import hw1.municipios.MunicipalityClient;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -23,8 +22,9 @@ public class BookingService {
         this.tokens = tokens;
     }
 
+    // Criar uma nova reserva
     public CreateBookingResponse create(CreateBookingRequest req) {
-        // 1) município válido
+        // 1) validar município
         Set<String> validCodes = muni.listAll().stream()
                 .map(Municipality::code)
                 .collect(Collectors.toSet());
@@ -42,7 +42,7 @@ public class BookingService {
         );
         rules.validate(domainReq);
 
-        // 3) criar booking com estado inicial e token
+        // 3) criar booking com token e estado inicial
         String token = tokens.generate();
         Booking booking = new Booking(
                 token,
@@ -53,14 +53,43 @@ public class BookingService {
                 BookingStatus.RECEIVED
         );
 
-        // 4) persistir
+        // 4) guardar
         repo.save(booking);
 
-        // 5) resposta
+        // 5) devolver resposta
         return new CreateBookingResponse(token);
     }
 
+    // Obter por token
     public Booking getByToken(String token) {
-        return repo.findByToken(token);
+        return repo.findByToken(token)
+                .orElseThrow(() -> new BookingNotFoundException("Token não encontrado: " + token));
+    }
+
+    // Listar tudo
+    public List<Booking> getAll() {
+        return repo.findAll();
+    }
+
+    // Listar por município
+    public List<Booking> getByMunicipality(String municipalityCode) {
+        return repo.findByMunicipality(municipalityCode);
+    }
+
+    // Atualizar estado
+    public Booking updateStatus(String token, String newStatus) {
+        Booking booking = repo.findByToken(token)
+                .orElseThrow(() -> new BookingNotFoundException("Token não encontrado: " + token));
+
+        BookingStatus status;
+        try {
+            status = BookingStatus.valueOf(newStatus.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Estado inválido: " + newStatus);
+        }
+
+        booking.setStatus(status);
+        repo.save(booking);
+        return booking;
     }
 }

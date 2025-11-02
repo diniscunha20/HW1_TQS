@@ -4,6 +4,7 @@
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/BookingConfig.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/BookingController.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/BookingExceptionHandler.java
+/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/BookingNotFoundException.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/BookingRepository.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/BookingRequest.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/BookingRules.java
