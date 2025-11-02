@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: hw1_tqs
+server:
+  port: 8080

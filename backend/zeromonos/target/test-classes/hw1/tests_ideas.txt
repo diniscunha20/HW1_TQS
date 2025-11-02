@@ -1,0 +1,225 @@
+1) Unit (domínio e regras)
+
+Focam a lógica pura, rápidos e estáveis. Dão-te confiança para evoluir.
+
+BookingRules
+
+rejeita data passada / aceita data futura — evita pedidos inválidos logo na origem.
+
+timeSlot válido (ex.: AM/PM) — garante consistência dos dados.
+
+município obrigatório e válido — previne lixo antes de tocar em I/O.
+
+capacidade por dia/slot/município (limites) — protege SLA/recursos.
+
+blackouts/feriados (se aplicares) — mantém regras de negócio explícitas.
+
+StatusTransition
+
+permite RECEIVED → ASSIGNED → IN_PROGRESS → COMPLETED, bloqueia saltos ilegais — evita estados incoerentes.
+
+não permite mudar estado após CANCELLED/COMPLETED — idempotência.
+
+TokenService
+
+formato e unicidade (num conjunto) — token é a “chave pública” do cidadão; precisa ser robusto.
+
+Clock/Id providers
+
+uso de relógio injetado (para timestamps) — testes determinísticos.
+
+2) Service (com mocks)
+
+Testam orquestração de regras + repositórios + clientes externos.
+
+BookingService.create()
+
+cria com sucesso (gera token, estado inicial RECEIVED, guarda histórico) — caso feliz principal.
+
+falha com validações de regras — comportamento previsível e mensagens claras.
+
+recusa município inexistente (MunicipalityClient mock) — integração defensiva.
+
+BookingService.findByToken()
+
+devolve detalhes + statusHistory ordenado — base para a página de estado.
+
+404 quando token não existe — UX coerente.
+
+BookingService.updateStatus()
+
+transição válida atualiza status + acrescenta histórico — rastreabilidade.
+
+transição inválida retorna erro — mantém integridade.
+
+BookingService.cancel(token)
+
+cancela apenas se permitido — evita “fantasmas”.
+
+Resiliência de MunicipalityClient
+
+timeouts/erros → tratamento (fallback/propagação) — robustez a falhas externas.
+
+3) Persistência (se usares JPA/DB)
+
+Garantem que o que definires no domínio não quebra ao persistir.
+
+Mapeamentos JPA
+
+Booking e StatusHistory persistem/recuperam corretamente — sem perdas.
+
+Índices/constraints
+
+unique em token; FK entre StatusHistory e Booking — coerência de dados.
+
+Queries
+
+filtros por município/estado com paginação — base da página de staff.
+
+4) Integração de API (MockMvc/REST-Assured)
+
+Verificam o contrato externo observável.
+
+POST /api/bookings
+
+201 + body {token} no caso feliz — contrato explícito.
+
+400/422 para inputs inválidos (date passada, slot inválido, missing fields) — feedback correto.
+
+GET /api/bookings/{token}
+
+200 + dados + statusHistory; 404 se não existir — UX consistente.
+
+PATCH /api/bookings/{id}/status
+
+204 no sucesso; 409 para transição ilegal; 404 para id desconhecido — semântica HTTP correta.
+
+GET /api/municipalities
+
+200 lista estável e ordenada — previsibilidade no frontend.
+
+Headers & CORS (se aplicável)
+
+respostas JSON, CORS permitido no dev — evita bugs de integração web.
+
+5) Contratos com o serviço externo (WireMock)
+
+Testes “à volta” do MunicipalityClient.
+
+happy path (200 com JSON esperado) — garante parsing.
+
+erros/transientes (5xx, timeout) — políticas de retry/backoff ou falha clara.
+
+payload inesperado (campos em falta) — tolerância a mudanças.
+
+6) UI (React, Vitest + React Testing Library)
+
+Rápidos, focados em comportamento do utilizador.
+
+Citizen page
+
+carrega municipalities e popula o <select> — integração básica.
+
+validação de formulário (required, data futura) antes de chamar API — UX.
+
+submissão chama /api/bookings e mostra token — caminho feliz.
+
+estados de loading/erro — resiliência de UX.
+
+Staff page
+
+mostra lista filtrável; ação “atualizar estado” dispara chamada e reflete mudança — fluxo operacional.
+
+A11y smoke
+
+elementos com labels/roles corretos — acessibilidade mínima.
+
+7) End-to-end (Selenium/WebDriver + Cucumber)
+
+Cobrem os fluxos críticos ponta-a-ponta.
+
+Cidadão cria pedido e vê token
+
+do formulário ao 201 da API e exibição do token — prova de vida do sistema.
+
+Cidadão consulta estado por token
+
+verifica timeline de estados — transparência.
+
+Staff atualiza estado
+
+lista → escolher pedido → mudar para ASSIGNED/IN_PROGRESS/COMPLETED — operacionalidade real.
+
+Cancelar com token
+
+garante que cidadão controla o pedido — confiança.
+
+8) Performance (Gatling)
+
+Evita surpresas quando houver carga.
+
+Create & Track (baseline)
+
+POST /bookings e GET /bookings/{token} com rampa leve (ex.: 50–100 req/s), assert p95/p99 — latência controlada.
+
+Lista staff
+
+GET /bookings?municipality=... com paginação sob carga — evita timeouts.
+
+Spike test
+
+rajada curta para ver elasticidade — proteção contra picos.
+
+9) Segurança e robustez
+
+Pequenos mas valiosos.
+
+Brute force de token (rate-limit/lockout se aplicável)
+
+garante que o token não é trivialmente enumerável.
+
+Input sanitization
+
+descrição com HTML/JS → confirmado como texto (anti-XSS) — protege UI.
+
+Tamanho máximo de campos
+
+recusa payloads gigantes — evita DoS acidental.
+
+Logs
+
+eventos críticos sem dados sensíveis; presença de IDs/token truncado — compliance e debugging.
+
+10) Observabilidade e saúde
+
+Facilitam diagnosticar problemas.
+
+/actuator/health (se ativares)
+
+200 e inclui checks de DB/externos — monitorização básica.
+
+Métricas
+
+contadores de pedidos por estado/município (se expuseres) — suporte a SLAs.
+
+Ordem sugerida (TDD)
+
+Unit: BookingRules (datas/slot/capacidade)
+
+Service: create() feliz + falhas de validação
+
+API: POST /bookings 201/422
+
+Contract: GET /municipalities (WireMock)
+
+API: GET /bookings/{token}
+
+Unit: StatusTransition
+
+API: PATCH /status
+
+UI: Citizen (carregar municípios → submit → ver token)
+
+E2E: “cidadão cria e vê token”
+
+Perf: cenário básico de create/track

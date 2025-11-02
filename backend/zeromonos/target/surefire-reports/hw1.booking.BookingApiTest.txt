@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: hw1.booking.BookingApiTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.248 s -- in hw1.booking.BookingApiTest
