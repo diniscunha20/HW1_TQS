@@ -9,7 +9,6 @@ public class BookingRules {
 
     private final LimitsService limitsService;
     private final Set<String> validSlots;
-    // chave = municipio|data|slot → contagem existente
     private final Map<String, Integer> existentes = new HashMap<>();
 
     public BookingRules(LimitsService limitsService, String[] validTimeSlots) {
@@ -30,7 +29,7 @@ public class BookingRules {
             currentForDay += existentes.getOrDefault(key(req.getMunicipalityCode(), req.getDate(), slot), 0);
         }
         if (currentForDay >= limitsService.getMaxPerDay()) {
-            throw new IllegalStateException("capacidade diária esgotada");
+            throw new IllegalStateException("Capacidade diária esgotada");
         }
     }
 

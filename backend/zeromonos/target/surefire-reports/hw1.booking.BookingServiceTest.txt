@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: hw1.booking.BookingServiceTest
 -------------------------------------------------------------------------------
-Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.226 s -- in hw1.booking.BookingServiceTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.374 s -- in hw1.booking.BookingServiceTest

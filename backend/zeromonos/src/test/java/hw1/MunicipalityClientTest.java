@@ -63,8 +63,8 @@ class HttpMunicipalityClientTest {
         .setBody("[]"));
 
     assertThatThrownBy(() -> client.listAll())
-      .isInstanceOf(IllegalStateException.class)
-      .satisfies(ex -> assertThat(ex.getMessage()).containsIgnoringCase("Erro ao obter municípios da GeoAPI"));
+      .isInstanceOf(MunicipalityProviderException.class)
+      .hasMessageContaining("GeoAPI down");
   }
 
   @Test
@@ -72,7 +72,7 @@ class HttpMunicipalityClientTest {
     server.enqueue(new MockResponse().setResponseCode(500).setBody("oops"));
 
     assertThatThrownBy(() -> client.listAll())
-      .isInstanceOf(IllegalStateException.class)
-      .satisfies(ex -> assertThat(ex.getMessage()).containsIgnoringCase("Erro ao obter municípios da GeoAPI"));
+      .isInstanceOf(MunicipalityProviderException.class)
+      .hasMessageContaining("GeoAPI down");
   }
 }
