@@ -1,6 +1,8 @@
 package hw1.booking;
 
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,4 +31,12 @@ public class InMemoryBookingRepository implements BookingRepository {
     public List<Booking> findAll() {
         return new ArrayList<>(byToken.values());
     }
+
+    @Override 
+    public long countActiveByDate(LocalDate date) {
+        return byToken.values().stream()
+        .filter(b -> date.equals(b.getDate()))
+        .filter(b -> b.getStatus() != BookingStatus.CANCELLED) // ajusta se precisares
+        .count();
+  }
 }

@@ -1,8 +1,11 @@
 package hw1.booking;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -11,9 +14,11 @@ import java.util.Map;
 public class BookingController {
 
     private final BookingService service;
+    private final LimitsService limitsService;
 
-    public BookingController(BookingService service) {
+    public BookingController(BookingService service, LimitsService limitsService) {
         this.service = service;
+        this.limitsService = limitsService;
     }
 
     // Criar uma marcação
@@ -30,11 +35,11 @@ public class BookingController {
 
     // Listar todas ou filtrar por município
     @GetMapping
-    public ResponseEntity<List<Booking>> listByMunicipality(@RequestParam(required = false) String municipality) {
-        if (municipality == null || municipality.isBlank()) {
+    public ResponseEntity<List<Booking>> listByMunicipality(@RequestParam(required = false) String municipalityCode) {
+        if (municipalityCode == null || municipalityCode.isBlank()) {
             return ResponseEntity.ok(service.getAll());
         }
-        return ResponseEntity.ok(service.getByMunicipality(municipality));
+        return ResponseEntity.ok(service.getByMunicipality(municipalityCode));
     }
 
     // Atualizar estado da marcação
@@ -42,7 +47,40 @@ public class BookingController {
     public ResponseEntity<Booking> updateStatus(
             @PathVariable String token,
             @RequestBody Map<String, String> payload) {
-        String newStatus = payload.get("status");
+
+        String newStatus = payload != null ? payload.get("status") : null;
+        if (newStatus == null || newStatus.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(service.updateStatus(token, newStatus));
+    }
+
+
+    // DTO minimalista para request/response
+    static record LimitDto(Integer maxPerDay) {}
+
+    // Lê o limite global atual
+    @GetMapping("/limits")
+    public ResponseEntity<LimitDto> getGlobalLimit() {
+        return ResponseEntity.ok(new LimitDto(limitsService.getMaxPerDay()));
+    }
+
+    // Atualiza o limite global
+    @PutMapping("/limits")
+    public ResponseEntity<Void> updateGlobalLimit(@RequestBody LimitDto dto) {
+        if (dto == null || dto.maxPerDay() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        limitsService.setMaxPerDay(dto.maxPerDay()); // valida internamente (1..1000)
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Long> countByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "true") boolean activeOnly) {
+
+        long n = service.countActiveByDate(date);
+        return ResponseEntity.ok(n);
     }
 }

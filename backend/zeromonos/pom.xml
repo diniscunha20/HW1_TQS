@@ -65,6 +65,30 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
+                <executions>
+                    <!-- injeta o agent antes dos testes -->
+                    <execution>
+                    <id>prepare-agent</id>
+                    <goals>
+                        <goal>prepare-agent</goal>
+                    </goals>
+                    </execution>
+                    <!-- gera relatório em verify (inclui XML + HTML) -->
+                    <execution>
+                    <id>report</id>
+                    <phase>verify</phase>
+                    <goals>
+                        <goal>report</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+                        <reports>
+                        <report>XML</report>
+                        <report>HTML</report>
+                        </reports>
+                    </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

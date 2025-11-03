@@ -13,6 +13,7 @@
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/CreateBookingRequest.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/CreateBookingResponse.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/InMemoryBookingRepository.java
+/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/LimitsService.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/SimpleTokenService.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/StatusChange.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/main/java/hw1/booking/TokenService.java

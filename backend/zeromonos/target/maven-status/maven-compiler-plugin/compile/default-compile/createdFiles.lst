@@ -3,6 +3,7 @@ hw1/booking/SimpleTokenService.class
 hw1/booking/BookingNotFoundException.class
 hw1/booking/InMemoryBookingRepository.class
 hw1/booking/BookingRepository.class
+hw1/booking/LimitsService.class
 hw1/booking/BookingExceptionHandler.class
 hw1/municipios/MunicipalityClient.class
 hw1/booking/Booking.class
@@ -17,6 +18,7 @@ hw1/municipios/HttpMunicipalityClient.class
 hw1/Main.class
 hw1/booking/BookingService.class
 hw1/booking/TokenService.class
+hw1/booking/BookingController$LimitDto.class
 hw1/municipios/MunicipalitiesController.class
 hw1/booking/BookingController.class
 hw1/booking/BookingConfig.class

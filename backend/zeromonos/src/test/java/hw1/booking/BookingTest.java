@@ -35,34 +35,6 @@ class BookingTest {
       .hasMessageMatching("(?i).*timeslot.*");
   }
 
-  @Test
-  void recusaCapacidadeExcedidaNoMesmoDiaESlotEMunicipio() {
-    var rules = new BookingRules(1, new String[]{"AM","PM"});
-    var dia = LocalDate.now().plusDays(2);
-
-    rules.registerExisting(new Booking("tok1", "Jose", "LX", dia, "AM", BookingStatus.RECEIVED));
-
-    var novo = new BookingRequest("Jose", "LX", dia, "AM", "Colchão");
-    assertThatThrownBy(() -> rules.validate(novo))
-      .hasMessageMatching("(?i).*capacidade.*");
-  }
-
-  @Test
-  void capacidadeIndependentePorMunicipio_ePorSlot() {
-    var rules = new BookingRules(1, new String[]{"AM","PM"});
-    var dia = LocalDate.now().plusDays(2);
-
-    // LX/AM já cheio
-    rules.registerExisting(new Booking("tok1", "Jose", "LX", dia, "AM", BookingStatus.RECEIVED));
-
-    // Mesmo slot e dia, mas município diferente → deve passar
-    var reqOutroMuni = new BookingRequest("Ana", "PRT", dia, "AM", "Colchão");
-    assertThatCode(() -> rules.validate(reqOutroMuni)).doesNotThrowAnyException();
-
-    // Mesmo município e dia, mas slot diferente → deve passar
-    var reqOutroSlot = new BookingRequest("Ana", "LX", dia, "PM", "Colchão");
-    assertThatCode(() -> rules.validate(reqOutroSlot)).doesNotThrowAnyException();
-  }
 
   @Test
   void aceitaNovasReservasDentroDaCapacidade() {

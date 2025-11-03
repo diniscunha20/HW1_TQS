@@ -19,9 +19,11 @@ class BookingApiTest {
 
   @MockBean BookingService service;
 
+  @MockBean LimitsService limits;
+
   @Test
   void POST_bookings_returns201WithToken() throws Exception {
-    when(service.create(any())).thenReturn(new CreateBookingResponse("abc123token"));
+    when(service.create(any())).thenReturn(new CreateBookingResponse("abc123token", "ignored"));
 
     mvc.perform(post("/api/bookings")
         .contentType(MediaType.APPLICATION_JSON)

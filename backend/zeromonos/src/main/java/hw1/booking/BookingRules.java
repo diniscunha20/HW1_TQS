@@ -25,11 +25,6 @@ public class BookingRules {
         if (!validSlots.contains(req.getTimeSlot())) {
             throw new IllegalArgumentException("timeSlot inválido: " + req.getTimeSlot());
         }
-        String key = key(req.getMunicipalityCode(), req.getDate(), req.getTimeSlot());
-        int usados = existentes.getOrDefault(key, 0);
-        if (usados >= capacidadeDia) {
-            throw new IllegalStateException("capacidade esgotada para esse dia/slot/município");
-        }
     }
 
     public void registerExisting(Booking booking) {
