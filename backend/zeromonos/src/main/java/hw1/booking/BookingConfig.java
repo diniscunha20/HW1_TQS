@@ -1,4 +1,3 @@
-// hw1/booking/BookingConfig.java
 package hw1.booking;
 
 import org.springframework.context.annotation.Bean;

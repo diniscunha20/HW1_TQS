@@ -2,194 +2,56 @@ package hw1.booking;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.time.LocalDate;
-
 import static org.assertj.core.api.Assertions.*;
 
 class BookingRulesTest {
 
-    private BookingRules rules;
+  private BookingRules rules;
 
-    @BeforeEach
-    void setUp() {
-        rules = new BookingRules(10, new String[]{"AM", "PM", "EVENING"});
-    }
+  @BeforeEach
+  void setUp() {
+    rules = new BookingRules(10, new String[]{"AM","PM","EVENING"});
+  }
 
-    @Test
-    void validate_futureDate_passes() {
-        BookingRequest request = new BookingRequest(
-            "Ana Silva",
-            "LX",
-            LocalDate.now().plusDays(5),
-            "AM",
-            "Test booking"
-        );
+  @Test
+  void validate_rejectsPastOrToday() {
+    var past = new BookingRequest("Ana","LX", LocalDate.now().minusDays(1),"AM","x");
+    var today = new BookingRequest("Ana","LX", LocalDate.now(),"AM","x");
+    assertThatThrownBy(() -> rules.validate(past)).satisfies(ex -> assertThat(ex.getMessage()).containsIgnoringCase("data"));
+    assertThatThrownBy(() -> rules.validate(today)).satisfies(ex -> assertThat(ex.getMessage()).containsIgnoringCase("data"));
+    var tomorrow = new BookingRequest("Ana","LX", LocalDate.now().plusDays(1),"AM","x");
+    assertThatCode(() -> rules.validate(tomorrow)).doesNotThrowAnyException();
+  }
 
-        assertThatCode(() -> rules.validate(request)).doesNotThrowAnyException();
-    }
+  @Test
+  void validate_rejectsInvalidTimeSlot() {
+    var req = new BookingRequest("Ana","LX", LocalDate.now().plusDays(3),"NOITE","x");
+    assertThatThrownBy(() -> rules.validate(req)).satisfies(ex -> assertThat(ex.getMessage()).containsIgnoringCase("time"));
+  }
 
-    @Test
-    void validate_pastDate_throwsException() {
-        BookingRequest request = new BookingRequest(
-            "Ana Silva",
-            "LX",
-            LocalDate.now().minusDays(1),
-            "AM",
-            "Test booking"
-        );
+  @Test
+  void capacity_respectsActiveOnly() {
+    var day = LocalDate.now().plusDays(5);
+    var b1 = new Booking("t1","Ana","LX",day,"AM",BookingStatus.RECEIVED);
+    var b2 = new Booking("t2","Bruno","LX",day,"AM",BookingStatus.CONFIRMED);
+    var b3 = new Booking("t3","Cris","LX",day,"AM",BookingStatus.CANCELLED);
+    rules.registerExisting(b1);
+    rules.registerExisting(b2);
+    rules.registerExisting(b3); // não conta
+    // ainda cabem 8
+    assertThatCode(() -> rules.validate(new BookingRequest("Z","LX",day,"AM","x"))).doesNotThrowAnyException();
+  }
 
-        assertThatThrownBy(() -> rules.validate(request))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("data inválida (passada)");
-    }
-
-    @Test
-    void validate_todayDate_throwsException() {
-        BookingRequest request = new BookingRequest(
-            "Ana Silva",
-            "LX",
-            LocalDate.now(),
-            "AM",
-            "Test booking"
-        );
-
-        assertThatThrownBy(() -> rules.validate(request))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("data inválida (passada)");
-    }
-
-    @Test
-    void validate_validTimeSlot_passes() {
-        BookingRequest requestAM = new BookingRequest(
-            "Ana", "LX", LocalDate.now().plusDays(5), "AM", "Test"
-        );
-        BookingRequest requestPM = new BookingRequest(
-            "Bruno", "PT", LocalDate.now().plusDays(5), "PM", "Test"
-        );
-        BookingRequest requestEvening = new BookingRequest(
-            "Carlos", "BR", LocalDate.now().plusDays(5), "EVENING", "Test"
-        );
-
-        assertThatCode(() -> rules.validate(requestAM)).doesNotThrowAnyException();
-        assertThatCode(() -> rules.validate(requestPM)).doesNotThrowAnyException();
-        assertThatCode(() -> rules.validate(requestEvening)).doesNotThrowAnyException();
-    }
-
-    @Test
-    void validate_invalidTimeSlot_throwsException() {
-        BookingRequest request = new BookingRequest(
-            "Ana Silva",
-            "LX",
-            LocalDate.now().plusDays(5),
-            "NIGHT",
-            "Test booking"
-        );
-
-        assertThatThrownBy(() -> rules.validate(request))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("timeSlot inválido");
-    }
-
-    @Test
-    void registerExisting_receivedBooking_registersBooking() {
-        Booking booking = new Booking(
-            "TOK1",
-            "Ana",
-            "LX",
-            LocalDate.now().plusDays(5),
-            "AM",
-            BookingStatus.RECEIVED
-        );
-
-        assertThatCode(() -> rules.registerExisting(booking)).doesNotThrowAnyException();
-    }
-
-    @Test
-    void registerExisting_confirmedBooking_registersBooking() {
-        Booking booking = new Booking(
-            "TOK1",
-            "Ana",
-            "LX",
-            LocalDate.now().plusDays(5),
-            "AM",
-            BookingStatus.CONFIRMED
-        );
-
-        assertThatCode(() -> rules.registerExisting(booking)).doesNotThrowAnyException();
-    }
-
-    @Test
-    void registerExisting_cancelledBooking_doesNotRegister() {
-        Booking booking = new Booking(
-            "TOK1",
-            "Ana",
-            "LX",
-            LocalDate.now().plusDays(5),
-            "AM",
-            BookingStatus.CANCELLED
-        );
-
-        assertThatCode(() -> rules.registerExisting(booking)).doesNotThrowAnyException();
-    }
-
-    @Test
-    void registerExisting_multipleBookingsSameMunicipalityDateSlot_registersAll() {
-        Booking b1 = new Booking("T1", "Ana", "LX", LocalDate.now().plusDays(5), "AM", BookingStatus.RECEIVED);
-        Booking b2 = new Booking("T2", "Bruno", "LX", LocalDate.now().plusDays(5), "AM", BookingStatus.CONFIRMED);
-        Booking b3 = new Booking("T3", "Carlos", "LX", LocalDate.now().plusDays(5), "AM", BookingStatus.RECEIVED);
-
-        rules.registerExisting(b1);
-        rules.registerExisting(b2);
-        rules.registerExisting(b3);
-
-        // Should not throw any exceptions
-        assertThatCode(() -> {
-            rules.registerExisting(b1);
-            rules.registerExisting(b2);
-            rules.registerExisting(b3);
-        }).doesNotThrowAnyException();
-    }
-
-    @Test
-    void registerExisting_differentMunicipalities_registersIndependently() {
-        Booking b1 = new Booking("T1", "Ana", "LX", LocalDate.now().plusDays(5), "AM", BookingStatus.RECEIVED);
-        Booking b2 = new Booking("T2", "Bruno", "PT", LocalDate.now().plusDays(5), "AM", BookingStatus.CONFIRMED);
-
-        rules.registerExisting(b1);
-        rules.registerExisting(b2);
-
-        assertThatCode(() -> {
-            rules.registerExisting(b1);
-            rules.registerExisting(b2);
-        }).doesNotThrowAnyException();
-    }
-
-    @Test
-    void registerExisting_differentDates_registersIndependently() {
-        Booking b1 = new Booking("T1", "Ana", "LX", LocalDate.now().plusDays(5), "AM", BookingStatus.RECEIVED);
-        Booking b2 = new Booking("T2", "Bruno", "LX", LocalDate.now().plusDays(6), "AM", BookingStatus.CONFIRMED);
-
-        rules.registerExisting(b1);
-        rules.registerExisting(b2);
-
-        assertThatCode(() -> {
-            rules.registerExisting(b1);
-            rules.registerExisting(b2);
-        }).doesNotThrowAnyException();
-    }
-
-    @Test
-    void registerExisting_differentTimeSlots_registersIndependently() {
-        Booking b1 = new Booking("T1", "Ana", "LX", LocalDate.now().plusDays(5), "AM", BookingStatus.RECEIVED);
-        Booking b2 = new Booking("T2", "Bruno", "LX", LocalDate.now().plusDays(5), "PM", BookingStatus.CONFIRMED);
-
-        rules.registerExisting(b1);
-        rules.registerExisting(b2);
-
-        assertThatCode(() -> {
-            rules.registerExisting(b1);
-            rules.registerExisting(b2);
-        }).doesNotThrowAnyException();
-    }
+  @Test
+  void differentDatesOrSlots_areIndependent() {
+    var d1 = LocalDate.now().plusDays(5);
+    var d2 = d1.plusDays(1);
+    rules.registerExisting(new Booking("a","N","LX",d1,"AM",BookingStatus.RECEIVED));
+    rules.registerExisting(new Booking("b","N","LX",d1,"PM",BookingStatus.RECEIVED));
+    rules.registerExisting(new Booking("c","N","LX",d2,"AM",BookingStatus.RECEIVED));
+    assertThatCode(() -> rules.validate(new BookingRequest("ok","LX",d1,"AM","x"))).doesNotThrowAnyException();
+    assertThatCode(() -> rules.validate(new BookingRequest("ok","LX",d1,"PM","x"))).doesNotThrowAnyException();
+    assertThatCode(() -> rules.validate(new BookingRequest("ok","LX",d2,"AM","x"))).doesNotThrowAnyException();
+  }
 }

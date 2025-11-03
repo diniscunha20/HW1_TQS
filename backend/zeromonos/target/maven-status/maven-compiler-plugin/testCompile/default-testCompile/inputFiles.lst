@@ -1,11 +1,10 @@
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/MunApiTest.java
+/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/MunicipalityClientTest.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/BookingApiTest.java
-/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/BookingControllerExtendedTest.java
+/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/BookingControllerTest.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/BookingRulesTest.java
-/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/BookingServiceExtendedTest.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/BookingServiceTest.java
-/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/BookingTest.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/InMemoryBookingRepositoryTest.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/LimitsServiceTest.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/SimpleTokenServiceTest.java
-/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/TokenTest.java
+/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/TokenServiceTest.java
