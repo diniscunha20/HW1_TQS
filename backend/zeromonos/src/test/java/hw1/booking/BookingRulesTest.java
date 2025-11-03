@@ -11,7 +11,7 @@ class BookingRulesTest {
 
   @BeforeEach
   void setUp() {
-    rules = new BookingRules(10, new String[]{"AM","PM","EVENING"});
+    rules = new BookingRules(new LimitsService(), new String[]{"AM","PM","EVENING"});
   }
 
   @Test

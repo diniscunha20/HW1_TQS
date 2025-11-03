@@ -8,3 +8,6 @@
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/LimitsServiceTest.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/SimpleTokenServiceTest.java
 /home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/booking/TokenServiceTest.java
+/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/integrationTests/BookingApiIT.java
+/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/integrationTests/BookingFlowIT.java
+/home/pombal/Desktop/TQS_projeto/HW1_TQS/backend/zeromonos/src/test/java/hw1/integrationTests/MunicipalitiesApiIT.java

@@ -43,7 +43,7 @@ public class HttpMunicipalityClient implements MunicipalityClient {
                 .toList();
         } catch (Exception ex) {
             System.err.println("[WARN] Falha ao obter municípios da GeoAPI: " + ex.getMessage());
-            throw new IllegalStateException("Erro ao obter municípios da GeoAPI", ex);
+            throw new MunicipalityProviderException("GeoAPI down", ex);
         }
     }
     private Municipality mapToMunicipality(Map<String, Object> raw) {

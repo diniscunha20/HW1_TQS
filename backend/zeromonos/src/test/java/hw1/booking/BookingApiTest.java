@@ -35,13 +35,13 @@ class BookingApiTest {
       .andExpect(jsonPath("$.token").value("abc123token"));
   }
   @Test
-  void POST_bookings_422_invalidPayload() throws Exception {
+  void POST_bookings_400_invalidPayload() throws Exception {
     mvc.perform(post("/api/bookings")
         .contentType(MediaType.APPLICATION_JSON)
         .content("""
           {"name":"","municipalityCode":"","date":"2020-01-01","timeSlot":"NOITE","description":""}
         """))
-      .andExpect(status().isUnprocessableEntity());
+      .andExpect(status().isBadRequest());
   }
   @Test
   void GET_bookingByToken_200() throws Exception {

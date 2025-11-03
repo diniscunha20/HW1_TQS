@@ -7,13 +7,13 @@ import java.util.Set;
 
 public class BookingRules {
 
-    private final int capacidadeDia;
+    private final LimitsService limitsService;
     private final Set<String> validSlots;
     // chave = municipio|data|slot → contagem existente
     private final Map<String, Integer> existentes = new HashMap<>();
 
-    public BookingRules(int capacidadeDia, String[] validTimeSlots) {
-        this.capacidadeDia = capacidadeDia;
+    public BookingRules(LimitsService limitsService, String[] validTimeSlots) {
+        this.limitsService = limitsService;
         this.validSlots = Set.of(validTimeSlots);
     }
 
@@ -24,6 +24,13 @@ public class BookingRules {
         }
         if (!validSlots.contains(req.getTimeSlot())) {
             throw new IllegalArgumentException("timeSlot inválido: " + req.getTimeSlot());
+        }
+        int currentForDay = 0;
+        for (String slot : validSlots) {
+            currentForDay += existentes.getOrDefault(key(req.getMunicipalityCode(), req.getDate(), slot), 0);
+        }
+        if (currentForDay >= limitsService.getMaxPerDay()) {
+            throw new IllegalStateException("capacidade diária esgotada");
         }
     }
 

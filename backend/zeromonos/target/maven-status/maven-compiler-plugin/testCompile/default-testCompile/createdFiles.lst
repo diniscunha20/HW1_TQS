@@ -1,10 +1,13 @@
+hw1/integrationTests/MunicipalitiesApiIT.class
 hw1/booking/SimpleTokenServiceTest.class
-hw1/municipios/HttpMunicipalityClientTest.class
 hw1/booking/BookingServiceTest.class
 hw1/MunicipalityApiTest.class
 hw1/booking/LimitsServiceTest.class
-hw1/booking/InMemoryBookingRepositoryTest.class
 hw1/booking/TokenServiceTest.class
+hw1/integrationtests/BookingFlowIT.class
 hw1/booking/BookingApiTest.class
-hw1/booking/BookingControllerTest.class
 hw1/booking/BookingRulesTest.class
+hw1/municipios/HttpMunicipalityClientTest.class
+hw1/booking/InMemoryBookingRepositoryTest.class
+hw1/booking/BookingControllerTest.class
+hw1/integrationTests/BookingApiIT.class

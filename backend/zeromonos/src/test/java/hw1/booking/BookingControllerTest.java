@@ -6,6 +6,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import hw1.booking.Booking;
+import hw1.booking.BookingController;
+import hw1.booking.BookingService;
+import hw1.booking.BookingStatus;
+import hw1.booking.LimitsService;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -62,14 +69,14 @@ class BookingControllerTest {
     verify(service).updateStatus("TOK","IN_PROGRESS");
   }
   @Test
-  void PATCH_updateStatus_missingStatus_returns422() throws Exception {
+  void PATCH_updateStatus_missingStatus_returns400() throws Exception {
     mvc.perform(patch("/api/bookings/TOK/status")
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"foo\":\"bar\"}"))
       .andExpect(status().isBadRequest());
     mvc.perform(patch("/api/bookings/TOK/status")
         .contentType(MediaType.APPLICATION_JSON))
-      .andExpect(status().isUnprocessableEntity());
+      .andExpect(status().isBadRequest());
     verify(service, never()).updateStatus(any(), any());
   }
   @Test
@@ -89,15 +96,30 @@ class BookingControllerTest {
       .andExpect(status().isNoContent());
     verify(limitsService).setMaxPerDay(42);
   }
-  @Test
-  void PUT_limits_missingBodyOrField_returns422() throws Exception {
-    mvc.perform(put("/api/bookings/limits")
-        .contentType(MediaType.APPLICATION_JSON))
-      .andExpect(status().isUnprocessableEntity());
+    @Test
+    void PUT_limits_missingBodyOrField_returns400_and_noServiceCall() throws Exception {
+        // sem body -> 400
+        mvc.perform(put("/api/bookings/limits")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
+
+        // body presente mas sem "maxPerDay" -> 400
+        mvc.perform(put("/api/bookings/limits")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{}"))
+            .andExpect(status().isBadRequest());
+
+        verify(limitsService, never()).setMaxPerDay(anyInt());
+    }
+
+    @Test
+    void PUT_limits_invalidValue_returns422() throws Exception {
+    doThrow(new IllegalArgumentException("maxPerDay > 0"))
+        .when(limitsService).setMaxPerDay(0);
+
     mvc.perform(put("/api/bookings/limits")
         .contentType(MediaType.APPLICATION_JSON)
-        .content("{}"))
-      .andExpect(status().isBadRequest());
-    verify(limitsService, never()).setMaxPerDay(anyInt());
-  }
+        .content("{\"maxPerDay\":0}"))
+        .andExpect(status().isUnprocessableEntity());
+    }
 }
